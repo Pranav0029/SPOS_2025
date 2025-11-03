@@ -1,0 +1,82 @@
+package pac;
+
+import java.text.DecimalFormat;
+
+class Symbol {
+    int index; String name; int address;
+    Symbol(int index, String name, int address) { this.index = index; this.name = name; this.address = address; }
+}
+
+class Literal {
+    int index; String name; int address;
+    Literal(int index, String name, int address) { this.index = index; this.name = name; this.address = address; }
+}
+
+public class Pract2{
+
+    static String[][] intermediateCode = {
+            {"(AD,01)", null, "(C,100)"},
+            {"(IS,04)", "(RG,01)", "(L,0)"},
+            {"(IS,01)", "(RG,03)", "(L,1)"},
+            {"(IS,04)", "(RG,01)", "(S,2)"},
+            {"(IS,01)", "(RG,01)", "(S,3)"},
+            {"(IS,05)", "(RG,01)", "(S,4)"},
+            {"(IS,10)", null, "(S,4)"},
+            {"(IS,02)", "(RG,01)", "(L,2)"},
+            {"(IS,03)", "(RG,03)", "(S,2)"},
+            {"(IS,00)", null, null},
+            {"(DL,02)", null, "(C,5)"},
+            {"(AD,02)", null, null}
+    };
+
+    static Symbol[] symbols = {
+            new Symbol(0, "A", 102),
+            new Symbol(1, "L1", 105),
+            new Symbol(2, "B", 112),
+            new Symbol(3, "C", 103),
+            new Symbol(4, "D", 103)
+    };
+
+    static Literal[] literals = {
+            new Literal(0, "='5'", 108),
+            new Literal(1, "='1'", 109),
+            new Literal(2, "='1'", 113)
+    };
+
+    public static void main(String[] args) {
+        DecimalFormat df = new DecimalFormat("000");
+        System.out.println("Opcode\tReg\tAddress");
+
+        for (int i = 0; i < intermediateCode.length; i++) {
+            String op = intermediateCode[i][0];
+            String reg = intermediateCode[i][1];
+            String addr = intermediateCode[i][2];
+
+            String opcode = "00" , regCode = "00" , address = "000";
+
+            // IS (Imperative Statement)
+            if (op.startsWith("(IS")) {
+                opcode = extract(op);
+                if (reg != null) regCode = extract(reg);
+
+                if (addr != null) {
+                    if (addr.contains("S"))
+                        address = df.format(symbols[Integer.parseInt(extract(addr))].address);
+                    else if (addr.contains("L"))
+                        address = df.format(literals[Integer.parseInt(extract(addr))].address);
+                }
+            }
+
+            // DS (Declarative Statement - size)
+            if (op.startsWith("(DL,02)")) {
+                if (addr != null) address = df.format(Integer.parseInt(extract(addr)));
+            }
+
+            System.out.println(opcode + "\t" + regCode + "\t" + address);
+        }
+    }
+
+    private static String extract(String s) {
+        return s.substring(s.indexOf(',') + 1, s.indexOf(')'));
+    }
+}
