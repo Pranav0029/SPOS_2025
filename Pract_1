@@ -1,0 +1,95 @@
+package pac;
+
+public class Pract1 {
+	public static void main (String [] args ) {
+		
+		System.out.println("assembly code ........");
+		
+		String asm_code[][]= {
+				{"","","START","200",""},
+				{"","","MOVER","AREG","X"},
+				{"","","MOVEM","BREG","Y"},
+				{"","X","DS","1",""},
+				{"","","END","",""}
+		};
+		
+		for ( int i= 0 ; i < asm_code.length ;i++ ) {
+			for ( int j=0 ;j<5; j++) {
+				System.out.print(asm_code[i][j] + '\t');
+	
+			}
+			System.out.println();
+		}System.out.println();
+//---------------------------------------------------------------------
+		
+        String symbol_table[] = new String[asm_code.length];
+        int count = 0;
+//---------------------------------------------------------------------		
+		String statment[][] = {
+				{"STOP","IS","00"},
+				{"ADD","IS","01"},
+				{"SUB","IS","02"},
+				{"MULT","IS","03"},
+				{"MOVER","IS","04"},
+				{"MOVEM","IS","05"},
+				{"COMP","IS","06"},
+				{"BC","IS","07"},
+				{"DIV","IS","08"},
+				{"READ","IS","09"},
+				{"PRINT","IS","10"},
+				
+				{"START","AD","01"},
+				{"END","AD","02"},
+				{"ORIGIN","AD","03"},
+				{"EQU","AD","04"},
+				{"LTORG","AD","05"},
+				
+				{"DS","DL","01"},
+				{"DC","DL","02"},
+				
+				{"AREG","RG","01"},
+				{"BREG","RG","02"},
+				{"CREG","RG","03"},
+		};
+		//display ststement matrix 
+		System.out.println("Opcode : ");
+        for (int i = 0; i < statment.length; i++) {
+            for (int j = 0; j < statment[i].length; j++) {
+                System.out.print(statment[i][j] + "\t");
+            }
+            System.out.println();
+        }System.out.println();
+//--------------------------------------------------------------------
+        
+        for (int i = 0; i < asm_code.length; i++) {
+            String sym = asm_code[i][4]; 
+            if (!sym.equals("")) { 
+                boolean milgya = false;
+                if (!milgya) {
+                    symbol_table[count] = sym;
+                    count++;
+                }
+            }
+        }
+		// display symbol table ....
+        System.out.println("Symbol Table:");
+        for (int i = 0; i < count; i++) {
+            System.out.println(symbol_table[i]);
+        }System.out.println();
+//--------------------------------------------------------------------
+        System.out.println("intermidate code : ");
+        for (int i = 0; i < asm_code.length; i++) {
+            for (int j = 0; j < 5; j++) { 
+                if (!asm_code[i][j].equals("")) { 
+                    for (int k = 0; k < statment.length; k++) {
+                        if (asm_code[i][j].equals(statment[k][0])) {
+                            System.out.print("(" + statment[k][1] + "," + statment[k][2] + ") ");
+                        }
+                    }
+                }
+            }
+            System.out.println();
+        }
+
+	}
+}
