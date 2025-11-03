@@ -1,0 +1,50 @@
+package pac;
+
+public class Pract_3 {
+    public static void main(String[] args) {
+        // ==================== FCFS INPUT ====================
+        String[] p = {"P1", "P2", "P3", "P4"};
+        int[] at = {0, 2, 4, 5};
+        int[] bt = {7, 4, 1, 4};
+        int n = p.length;
+
+        int[] wt = new int[n], tat = new int[n], ct = new int[n];
+        int time = 0;
+
+        // ==================== FCFS LOGIC ====================
+        for (int i = 0; i < n; i++) {
+            if (time < at[i]) time = at[i];
+            wt[i] = time - at[i];
+            time += bt[i];
+            ct[i] = time;
+            tat[i] = ct[i] - at[i];
+        }
+
+        System.out.println("=== FCFS ===");
+        System.out.println("P\tAT\tBT\tWT\tTAT\tCT");
+        for (int i = 0; i < n; i++)
+            System.out.println(p[i] + "\t" + at[i] + "\t" + bt[i] + "\t" + wt[i] + "\t" + tat[i] + "\t" + ct[i]);
+
+
+        // ==================== SJF INPUT (Already Sorted by BT) ====================
+        String[] p2 = {"P3", "P2", "P4", "P1"};
+        int[] at2 = {4, 2, 5, 0};
+        int[] bt2 = {1, 4, 4, 7};
+
+        int[] wt2 = new int[n], tat2 = new int[n], ct2 = new int[n];
+        time = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (time < at2[i]) time = at2[i];
+            wt2[i] = time - at2[i];
+            time += bt2[i];
+            ct2[i] = time;
+            tat2[i] = ct2[i] - at2[i];
+        }
+
+        System.out.println("\n=== SJF (Non-Preemptive) ===");
+        System.out.println("P\tAT\tBT\tWT\tTAT\tCT");
+        for (int i = 0; i < n; i++)
+            System.out.println(p2[i] + "\t" + at2[i] + "\t" + bt2[i] + "\t" + wt2[i] + "\t" + tat2[i] + "\t" + ct2[i]);
+    }
+}
