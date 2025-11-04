@@ -1,0 +1,82 @@
+import java.util.*;
+
+public class PageReplacement {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("1. LRU");
+        System.out.println("2. OPT");
+        int ch = sc.nextInt();
+        int f = sc.nextInt();
+        int n = sc.nextInt();
+        int[] pages = new int[n];
+        for (int i = 0; i < n; i++) pages[i] = sc.nextInt();
+
+        if (ch == 1) LRU(f, pages);
+        else if (ch == 2) OPT(f, pages);
+        sc.close();
+    }
+
+    static void LRU(int f, int[] pages) {
+        int[] frames = new int[f];
+        int count = 0, faults = 0;
+        Arrays.fill(frames, -1);
+
+        for (int i = 0; i < pages.length; i++) {
+            int page = pages[i];
+            int pos = -1;
+            for (int j = 0; j < f; j++)
+                if (frames[j] == page) pos = j;
+
+            if (pos == -1) {
+                faults++;
+                if (count < f) frames[count++] = page;
+                else {
+                    int[] recent = new int[f];
+                    Arrays.fill(recent, -1);
+                    for (int k = i - 1, r = 0; k >= 0 && r < f; k--) {
+                        for (int j = 0; j < f; j++)
+                            if (pages[k] == frames[j] && recent[j] == -1)
+                                recent[j] = k;
+                    }
+                    int min = 0;
+                    for (int j = 1; j < f; j++)
+                        if (recent[j] < recent[min]) min = j;
+                    frames[min] = page;
+                }
+            }
+            System.out.println(Arrays.toString(frames));
+        }
+        System.out.println("Faults=" + faults + " Hits=" + (pages.length - faults));
+    }
+
+    static void OPT(int f, int[] pages) {
+        int[] frames = new int[f];
+        int count = 0, faults = 0;
+        Arrays.fill(frames, -1);
+
+        for (int i = 0; i < pages.length; i++) {
+            int page = pages[i];
+            int pos = -1;
+            for (int j = 0; j < f; j++)
+                if (frames[j] == page) pos = j;
+
+            if (pos == -1) {
+                faults++;
+                if (count < f) frames[count++] = page;
+                else {
+                    int far = -1, idx = -1;
+                    for (int j = 0; j < f; j++) {
+                        int next = Integer.MAX_VALUE;
+                        for (int k = i + 1; k < pages.length; k++)
+                            if (frames[j] == pages[k]) { next = k; break; }
+                        if (next > far) { far = next; idx = j; }
+                    }
+                    frames[idx] = page;
+                }
+            }
+            System.out.println(Arrays.toString(frames));
+        }
+        System.out.println("Faults=" + faults + " Hits=" + (pages.length - faults));
+    }
+}
