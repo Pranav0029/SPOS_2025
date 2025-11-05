@@ -3,80 +3,131 @@ import java.util.*;
 public class PageReplacement {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-
         System.out.println("1. LRU");
         System.out.println("2. OPT");
-        int ch = sc.nextInt();
-        int f = sc.nextInt();
-        int n = sc.nextInt();
-        int[] pages = new int[n];
-        for (int i = 0; i < n; i++) pages[i] = sc.nextInt();
+        int ch = sc.nextInt();     // choice
+        int f = sc.nextInt();      // number of frames
+        int n = sc.nextInt();      // number of pages
 
-        if (ch == 1) LRU(f, pages);
-        else if (ch == 2) OPT(f, pages);
-        sc.close();
+        int pages[] = new int[n];
+        for (int i = 0; i < n; i++)
+            pages[i] = sc.nextInt();
+
+        if (ch == 1)
+            lru(pages, f);
+        else
+            opt(pages, f);
     }
 
-    static void LRU(int f, int[] pages) {
-        int[] frames = new int[f];
-        int count = 0, faults = 0;
-        Arrays.fill(frames, -1);
+    // ---------- LRU ----------
+    static void lru(int pages[], int f) {
+        int frame[] = new int[f];
+        int time[] = new int[f];
+        int faults = 0;
+        Arrays.fill(frame, -1);
 
         for (int i = 0; i < pages.length; i++) {
             int page = pages[i];
-            int pos = -1;
-            for (int j = 0; j < f; j++)
-                if (frames[j] == page) pos = j;
+            boolean found = false;
 
-            if (pos == -1) {
+            // check page present
+            for (int j = 0; j < f; j++) {
+                if (frame[j] == page) {
+                    found = true;
+                    time[j] = i;   // update time
+                    break;
+                }
+            }
+
+            // if not found => page fault
+            if (!found) {
                 faults++;
-                if (count < f) frames[count++] = page;
-                else {
-                    int[] recent = new int[f];
-                    Arrays.fill(recent, -1);
-                    for (int k = i - 1, r = 0; k >= 0 && r < f; k--) {
-                        for (int j = 0; j < f; j++)
-                            if (pages[k] == frames[j] && recent[j] == -1)
-                                recent[j] = k;
-                    }
+                int pos = -1;
+
+                // find empty frame
+                for (int j = 0; j < f; j++) {
+                    if (frame[j] == -1) { pos = j; break; }
+                }
+
+                // if full => find least recently used
+                if (pos == -1) {
                     int min = 0;
                     for (int j = 1; j < f; j++)
-                        if (recent[j] < recent[min]) min = j;
-                    frames[min] = page;
+                        if (time[j] < time[min]) min = j;
+                    pos = min;
                 }
+
+                frame[pos] = page;
+                time[pos] = i;
             }
-            System.out.println(Arrays.toString(frames));
+
+            // print frames
+            for (int j = 0; j < f; j++)
+                System.out.print(frame[j] + "\t");
+            System.out.println();
         }
-        System.out.println("Faults=" + faults + " Hits=" + (pages.length - faults));
+
+        System.out.println("Page Faults = " + faults);
+        System.out.println("Hits = " + (pages.length - faults));
     }
 
-    static void OPT(int f, int[] pages) {
-        int[] frames = new int[f];
-        int count = 0, faults = 0;
-        Arrays.fill(frames, -1);
+    // ---------- OPT ----------
+    static void opt(int pages[], int f) {
+        int frame[] = new int[f];
+        int faults = 0;
+        Arrays.fill(frame, -1);
 
         for (int i = 0; i < pages.length; i++) {
             int page = pages[i];
-            int pos = -1;
-            for (int j = 0; j < f; j++)
-                if (frames[j] == page) pos = j;
+            boolean found = false;
 
-            if (pos == -1) {
-                faults++;
-                if (count < f) frames[count++] = page;
-                else {
-                    int far = -1, idx = -1;
-                    for (int j = 0; j < f; j++) {
-                        int next = Integer.MAX_VALUE;
-                        for (int k = i + 1; k < pages.length; k++)
-                            if (frames[j] == pages[k]) { next = k; break; }
-                        if (next > far) { far = next; idx = j; }
-                    }
-                    frames[idx] = page;
+            // check page present
+            for (int j = 0; j < f; j++) {
+                if (frame[j] == page) {
+                    found = true;
+                    break;
                 }
             }
-            System.out.println(Arrays.toString(frames));
+
+            // if not found => fault
+            if (!found) {
+                faults++;
+                int pos = -1;
+
+                // empty frame available?
+                for (int j = 0; j < f; j++) {
+                    if (frame[j] == -1) { pos = j; break; }
+                }
+
+                // if full => replace farthest page
+                if (pos == -1) {
+                    int farthest = -1, idx = -1;
+                    for (int j = 0; j < f; j++) {
+                        int nextUse = 9999;
+                        for (int k = i + 1; k < pages.length; k++) {
+                            if (frame[j] == pages[k]) {
+                                nextUse = k;
+                                break;
+                            }
+                        }
+                        if (nextUse > farthest) {
+                            farthest = nextUse;
+                            idx = j;
+                        }
+                    }
+                    pos = idx;
+                }
+
+                frame[pos] = page;
+            }
+
+            // print frames
+            for (int j = 0; j < f; j++)
+                System.out.print(frame[j] + "\t");
+            System.out.println();
         }
-        System.out.println("Faults=" + faults + " Hits=" + (pages.length - faults));
+
+        System.out.println("Page Faults = " + faults);
+        System.out.println("Hits = " + (pages.length - faults));
     }
 }
